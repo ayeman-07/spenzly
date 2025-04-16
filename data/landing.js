@@ -90,6 +90,7 @@ import {
     {
       name: "Sarah Johnson",
       role: "Small Business Owner",
+      // random user image API
       image: "https://randomuser.me/api/portraits/women/75.jpg",
       quote:
         "Welth has transformed how I manage my business finances. The AI insights have helped me identify cost-saving opportunities I never knew existed.",

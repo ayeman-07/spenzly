@@ -1,94 +1,116 @@
 "use client";
 
 import Link from 'next/link';
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import Image from 'next/image';
+import { ArrowRight, BarChart3, CreditCard, PieChart } from 'lucide-react';
 
 const HeroSection = () => {
+  const imageRef = useRef();
 
-    // useRef is used to reference the image element to be animated
-    const imageRef = useRef();
-
-    useEffect(() => {
-        // Get a reference to the DOM element using the ref (imageRef)
-        const imageElement = imageRef.current;
-    
-        // Define a function that handles scroll events
-        const handleScroll = () => {
-            // Get the current vertical scroll position of the window
-            const scrollPosition = window.scrollY;
-    
-            // Set a threshold value for triggering the effect
-            const scrollThreshold = 100;
-    
-            // If the scroll position is greater than the threshold, add the "scrolled" class
-            if (scrollPosition > scrollThreshold) {
-                imageElement.classList.add("scrolled");
-            } 
-            // If the scroll position is less than or equal to the threshold, remove the "scrolled" class
-            else {
-                imageElement.classList.remove("scrolled");
-            }
-        };
-    
-        // Add the scroll event listener to the window, triggering handleScroll on scroll
-        window.addEventListener("scroll", handleScroll);
-    
-        // Clean-up function to remove the scroll event listener when the component unmounts
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []); // Empty dependency array ensures this effect runs only once after the initial render
-    
-
-    
-
+  useEffect(() => {
+    const imageElement = imageRef.current;
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const scrollThreshold = 100;
+      if (scrollPosition > scrollThreshold) {
+        imageElement.classList.add("scrolled");
+      } else {
+        imageElement.classList.remove("scrolled");
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className='pb-20 px-4'>
-        <div className='container mx-auto text-center'>
+    <div className="h-[calc(100vh-4rem)] relative overflow-hidden">
+      {/* Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/90 z-0" />
+      
+      {/* Content */}
+      <div className="container mx-auto px-4 h-full relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center h-full">
+          {/* Left Column - Text Content */}
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold gradient-title leading-tight">
+                Smart Finance Management for Modern Life
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-xl">
+                Take control of your finances with AI-powered insights and real-time analytics. Make smarter decisions with Spenzly.
+              </p>
+            </div>
 
-        
-      <h1 className='text-5xl md:text-8xl lg:text-[105px] pb-6 gradient-title'>
-        Manage your finances <br/> with Intelligence
-      </h1>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/dashboard">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground group"
+                >
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="/features">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
+                  Learn More
+                </Button>
+              </Link>
+            </div>
 
-      <p className='text-xl text-gray-600 mb-8 max-w-2xl mx-auto '>
-        An AI powered financial management tool that helps you track, analyze ,and optimize yopur spending with real-time insights.
-      </p>
+            {/* Feature Highlights */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-secondary/50">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <span className="text-sm">Real-time Analytics</span>
+              </div>
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-secondary/50">
+                <PieChart className="h-5 w-5 text-primary" />
+                <span className="text-sm">Smart Budgeting</span>
+              </div>
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-secondary/50">
+                <CreditCard className="h-5 w-5 text-primary" />
+                <span className="text-sm">Multi-Account</span>
+              </div>
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-secondary/50">
+                <ArrowRight className="h-5 w-5 text-primary" />
+                <span className="text-sm">AI Insights</span>
+              </div>
+            </div>
+          </div>
 
-
-      <div className='flex justify-center space-x-4'>
-        <Link href = "/dashboard">
-            <Button size="lg" className = "px-8">Get Started
-
-            </Button>
-        </Link>
-
-        <Link href = "https://www.youtube.com/roadsidecoder">
-        <Button size="lg" variant = "outline" className = "px-8">Watch Demo</Button>
-        </Link>
-      </div>
-
-
-      {/* hero image wrapper is a custom class to style the image for animation upon scrolling */}
-      <div className='hero-image-wrapper'>
-        <div ref = {imageRef} className='hero-image'>
-            <Image
-                src= "/banner.jpeg"
-                alt = "Dashboard Preview"
-                width={1280}
-                height={720}
-                className='rounded-lg shadow-2xl border mx-auto'
-                priority
-
-            />
-
+          {/* Right Column - Image */}
+          <div className="relative h-full flex items-center justify-center">
+            <div className="hero-image-wrapper w-full max-w-md">
+              <div ref={imageRef} className="hero-image animate-float">
+                <div className="relative">
+                  {/* Main Dashboard Image */}
+                  <Image
+                    src="/banner.png"
+                    alt="Spenzly Dashboard Preview"
+                    width={400}
+                    height={300}
+                    className="rounded-2xl shadow-2xl border border-border/40 mx-auto card-hover w-full h-auto"
+                    priority
+                  />
+                  
+                  {/* Floating Elements */}
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full blur-2xl animate-pulse" />
+                  <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-primary/10 rounded-full blur-2xl animate-pulse delay-300" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-     
     </div>
-    </div>
-  )
-}
+  );
+};
 
-export default HeroSection
+export default HeroSection;

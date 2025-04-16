@@ -1,113 +1,101 @@
-
-
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-js" // Specifies Prisma Client as the generator
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider  = "postgresql" // Defines PostgreSQL as the database provider
+  url       = env("DATABASE_URL") // Uses environment variable for DB URL
+  directUrl = env("DIRECT_URL") // Direct connection URL for optimization
 }
 
 model User {
- id      String   @id @default(uuid())
- clerkUserId String @unique // Clerk user id
- email   String   @unique
- name    String?
- imageUrl String?
- transactions Transaction[]
- accounts Account[]
- budgets Budget[]
- createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid()) // Unique user ID
+  clerkUserId String   @unique // Unique Clerk authentication ID
+  email       String   @unique // Unique email for each user
+  name        String?  // Optional user name
+  imageUrl    String?  // Optional profile image URL
+  transactions Transaction[] // One-to-many relation with transactions
+  accounts    Account[] // One-to-many relation with accounts
+  budgets     Budget[] // One-to-one relation with budget
+  createdAt   DateTime @default(now()) // Timestamp for creation
+  updatedAt   DateTime @updatedAt // Auto-updates on modification
 
-  @@map ("users")
+  @@map("users") // Maps to "users" table in DB
 }
 
+model Account {
+  id         String   @id @default(uuid()) // Unique account ID
+  name       String // Account name
+  type       AccountType // Account type (CURRENT/SAVINGS)
+  balance    Decimal @default(0) // Initial balance (default: 0)
+  isDefault  Boolean @default(false) // Whether it's the default account
+  userId     String // Foreign key referencing User
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship with User
+  transactions Transaction[] // One-to-many relation with transactions
+  createdAt  DateTime @default(now()) // Timestamp for creation
+  updatedAt  DateTime @updatedAt // Auto-updates on modification
 
-model Account{
-  id String @id @default(uuid())
-  name String
-  type AccountType 
-  balance Decimal @default(0) // will ask initial balance while creating account
-  isDefault Boolean @default(false)
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions Transaction[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@map("accounts")
+  @@index([userId]) // Index for faster queries on userId
+  @@map("accounts") // Maps to "accounts" table in DB
 }
 
-
-enum AccountType{
+enum AccountType {
   CURRENT
   SAVINGS
 }
 
-model Transaction{
-  id String @id @default(uuid())
-  type TransactionType
-  amount Decimal
-  description String?
-  date DateTime
-  category String
-  receiptUrl String?
-  isRecurring Boolean @default(false)
-  recurringInterval RecurringInterval? // only used if isRecurring is true
-  nextRecurringDate DateTime? // Next date for reurring transaction
-  lastProcessed DateTime? // Last Time this recurring transaction was processed
-  status TransactionStatus @default(COMPLETED)
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountId String
-  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Transaction {
+  id              String @id @default(uuid()) // Unique transaction ID
+  type            TransactionType // Transaction type (INCOME/EXPENSE)
+  amount          Decimal // Transaction amount
+  description     String? // Optional description
+  date           DateTime // Date of transaction
+  category       String // Transaction category
+  receiptUrl     String? // Optional receipt URL
+  isRecurring    Boolean @default(false) // Recurring transaction flag
+  recurringInterval RecurringInterval? // Recurrence interval (if applicable)
+  nextRecurringDate DateTime? // Next recurring transaction date
+  lastProcessed  DateTime? // Last processed date for recurring transactions
+  status         TransactionStatus @default(COMPLETED) // Transaction status
+  userId         String // Foreign key referencing User
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship with User
+  accountId      String // Foreign key referencing Account
+  account       Account @relation(fields: [accountId], references: [id], onDelete: Cascade) // Relationship with Account
+  createdAt      DateTime @default(now()) // Timestamp for creation
+  updatedAt      DateTime @updatedAt // Auto-updates on modification
 
-  @@index([userId])
-  @@index([accountId])
-  @@map("transactions")
-
+  @@index([userId]) // Index for user-based queries
+  @@index([accountId]) // Index for account-based queries
+  @@map("transactions") // Maps to "transactions" table in DB
 }
 
-
-enum TransactionType{
+enum TransactionType {
   INCOME
   EXPENSE
-  
 }
 
-enum RecurringInterval{
+enum RecurringInterval {
   DAILY
   WEEKLY
   MONTHLY
   YEARLY
 }
 
-enum TransactionStatus{
+enum TransactionStatus {
   COMPLETED
   PENDING
   CANCELLED
 }
 
+model Budget {
+  id            String @id @default(uuid()) // Unique budget ID
+  amount        Decimal // Budget amount
+  lastAlertSent DateTime? // Timestamp of last alert sent
+  userId        String @unique // Unique user ID (one budget per user)
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship with User
+  createdAt     DateTime @default(now()) // Timestamp for creation
+  updatedAt     DateTime @updatedAt // Auto-updates on modification
 
-model Budget{
-id String @id @default(uuid())
-amount Decimal
-lastAlertSent DateTime? // Track when last alert was sent
-userId String @unique
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-
-@@index([userId])
-@@map("budgets")
-
+  @@index([userId]) // Index for user-based queries
+  @@map("budgets") // Maps to "budgets" table in DB
 }
-
-
-
